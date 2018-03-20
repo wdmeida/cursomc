@@ -1,5 +1,7 @@
 package com.wagneralmeida.cursomc.resources;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -9,10 +11,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.wagneralmeida.cursomc.domain.Categoria;
 import com.wagneralmeida.cursomc.domain.Produto;
-import com.wagneralmeida.cursomc.dto.CategoriaDTO;
 import com.wagneralmeida.cursomc.dto.ProdutoDTO;
+import com.wagneralmeida.cursomc.resources.utils.URL;
 import com.wagneralmeida.cursomc.services.ProdutoService;
 
 @RestController
@@ -37,9 +38,11 @@ public class ProdutoResource {
 			@RequestParam(value = "linesPerPage", defaultValue="24") Integer linesPerPage, 
 			@RequestParam(value = "orderBy", defaultValue="nome") String orderBy, 
 			@RequestParam(value = "direction", defaultValue="ASC") String direction) {
-		Page<Produto> produtos = service.search(nome, ids, page, linesPerPage, orderBy, direction);
-		Page<CategoriaDTO> categoriesDTO = categories.map(obj -> new CategoriaDTO(obj));
-		return ResponseEntity.ok().body(categoriesDTO);
+		String nomeDecoded = URL.decodeParam(nome);
+		List<Integer> ids = URL.decodeIntList(categorias);
+		Page<Produto> produtos = service.search(nomeDecoded, ids, page, linesPerPage, orderBy, direction);
+		Page<ProdutoDTO> produtosDTO = produtos.map(obj -> new ProdutoDTO(obj));
+		return ResponseEntity.ok().body(produtosDTO);
 	}
 
 }
